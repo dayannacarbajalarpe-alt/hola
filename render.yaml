@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: studio-moda
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn proyecto:app
