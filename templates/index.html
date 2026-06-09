@@ -1,31 +1,54 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>studio moda — Tienda de Ropa</title>
-   <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet.css') }}">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
 </head>
+
 <body>
 
-  
+
   <header class="header">
     <div class="header-inner">
 
-     
+
       <div class="logo">Studio moda</div>
 
 
       <nav class="nav">
-        <a href="#" class="nav-link">Inicio</a>
-        <a href="#tienda" class="nav-link">Ver Tienda</a>
+        <a href="{{ url_for('inicio') }}" class="nav-link">Inicio</a>
+        <a href="{{ url_for('tienda') }}" class="nav-link">Ver Tienda</a>
       </nav>
 
-      
+
       <div class="search-bar">
         <input type="text" class="search-input" placeholder="Buscar prendas..." />
         <button class="search-btn">Buscar</button>
+      </div>
+
+      <div class="nav-actions">
+        <a href="{{ url_for('perfil') }}" class="btn-icon" title="Perfil">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+          </svg>
+        </a>
+
+        <a href="{{ url_for('carrito') }}" class="btn-icon" title="Carrito">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+        </a>
       </div>
 
     </div>
@@ -34,7 +57,7 @@
 
   <section class="hero-banner">
     <div class="hero-placeholder">
-      <img src="imagen/ropa.jpg" alt="ropa" width="1000px;">
+      <img src="{{ url_for('static', filename='img/ropa.jpg') }}" style="width: 950px;" alt="Ropa">
     </div>
   </section>
 
@@ -44,42 +67,42 @@
 
     <div class="cards-grid">
 
-   
+
       <div class="card">
         <div class="card-image">
-          <div class="img-placeholder"></div>
+          <img src="{{ url_for('static', filename='img/jeans2.jpg') }}" style="width: 295px;" alt="jeans">
         </div>
         <div class="card-body">
           <p class="card-category">Pantalones</p>
           <h3 class="card-name">Jeans Clásico</h3>
           <p class="card-price">S/ 129.90</p>
-          <button class="card-btn">Agregar al carrito</button>
+          <a href="{{ url_for('detalles') }}" class="card-btn">Ver detalles</a>
         </div>
       </div>
 
 
       <div class="card">
         <div class="card-image">
-          <div class="img-placeholder"></div>
+          <img src="{{ url_for('static', filename='img/rojo.jpg') }}" style="width: 295px;" alt="vestidos">
         </div>
         <div class="card-body">
           <p class="card-category">Calzado</p>
           <h3 class="card-name">Zapatos Nike</h3>
           <p class="card-price">S/ 180.00</p>
-          <button class="card-btn">Agregar al carrito</button>
+          <a href="{{ url_for('detalles') }}" class="card-btn">Ver detalles</a>
         </div>
       </div>
 
 
       <div class="card">
         <div class="card-image">
-          <div class="img-placeholder"></div>
+          <img src="{{ url_for('static', filename='img/casaca.jpg') }}" style="width: 295px;" alt="casaca">
         </div>
         <div class="card-body">
           <p class="card-category">Tops</p>
           <h3 class="card-name">Blusa Casual</h3>
           <p class="card-price">S/ 79.90</p>
-          <button class="card-btn">Agregar al carrito</button>
+          <a href="{{ url_for('detalles') }}" class="card-btn">Ver detalles</a>
         </div>
       </div>
 
@@ -92,4 +115,5 @@
   </footer>
 
 </body>
+
 </html>

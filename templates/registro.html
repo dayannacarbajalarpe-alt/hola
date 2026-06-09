@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="register-form" >
+        <h2 class="auth-title">Crear cuenta</h2>
+        <form method="POST" action="{{ url_for('registro') }}">
+          <div class="field">
+            <label>Nombre completo</label>
+            <input type="text" name="nombre" placeholder="Tu nombre" required/>
+          </div>
+          <div class="field">
+            <label>Correo electrónico</label>
+            <input type="email" name="correo" placeholder="tucorreo@email.com" required/>
+          </div>
+          <div class="field">
+            <label>Contraseña</label>
+            <input type="password" name="contrasena" placeholder="••••••••" required/>
+          </div>
+          <button type="submit" class="btn-primary">Crear cuenta</button>
+        </form>
+        <p class="register-link">¿Ya tienes cuenta?
+          <a onclick="showTab('login')">Inicia sesión</a>
+        </p>
+      </div>
+
+</body>
+</html>

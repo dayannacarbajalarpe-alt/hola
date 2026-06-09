@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil — Studio Moda</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet.css') }}">
+</head>
+<body>
+
+  <div class="auth-wrap">
+    <div class="auth-card">
+
+      <div class="auth-avatar">&#128100;</div>
+      <h2 class="auth-title">Bienvenido de vuelta</h2>
+      <p class="auth-sub">Ingresa tus datos para continuar</p>
+
+      <form method="POST" action="{{ url_for('login') }}">
+        <div class="field">
+          <label>Correo electrónico</label>
+          <input type="email" name="correo" placeholder="tucorreo@email.com" required/>
+        </div>
+        <div class="field">
+          <label>Contraseña</label>
+          <input type="password" name="contrasena" placeholder="••••••••" required/>
+        </div>
+        <button type="submit" class="btn-primary">Iniciar sesión</button>
+      </form>
+
+      <p class="register-link">¿No tienes cuenta?
+        <a href="{{ url_for('registro') }}">Regístrate aquí</a>
+      </p>
+
+    </div>
+  </div>
+
+</body>
+</html>
