@@ -452,3 +452,171 @@ body {
   }
 }
 
+/*tiendaaa*/
+.tienda {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  padding: 2rem;
+}
+
+.filtros {
+  border: 1px solid #ce8600;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  height: fit-content;
+  color:black;
+}
+
+.filtros h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.filtros label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.filtros select {
+  width: 100%;
+  padding: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+/*productos de tienda*/
+.producto {
+  background: rgb(255, 225, 200);
+  border: 1px solid #ce7b00;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #333;
+}
+
+.producto-img {
+  background: #f0f0f0;
+  border-radius: 8px;
+  height: 100px;
+}
+
+.producto-nombre {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+}
+
+.producto-precio {
+  color: #8f4500;
+  font-size: 14px;
+  margin: 0;
+}
+
+.btn-agregar {
+  margin-top: 4px;
+  padding: 0.5rem;
+  border: 1px solid #ce7b00;
+  border-radius: 8px;
+  background: orangered;
+  cursor: pointer;
+  color: white;
+}
+
+.btn-agregar:hover {
+  transition: 0.4s;
+  background: #b45700;
+}
+
+/*detalles*/
+.detalle-card {
+  max-width: 400px;
+  margin: 2rem auto;
+  background: rgb(255, 220, 191);
+  border: 1px solid #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.detalle-img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.detalle-precio {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.detalle-cantidad {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 1rem 0;
+}
+
+.detalle-cantidad input {
+  width: 60px;
+  padding: 0.3rem;
+  text-align: center;
+}
+.btn-detalles {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.5rem;
+  border: 1px solid #ce7b00;
+  border-radius: 8px;
+  background: orangered;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.btn-detalles:hover {
+  background: #b33900;
+}
+/*cuentaaa cuando ya inicias sesion*/
+.cuenta-card {
+  max-width: 350px;
+  margin: 4rem auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.cuenta-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 1rem;
+  background: #f0f0f0;
+}
+
+.cuenta-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cuenta-correo {
+  color: #777;
+  margin-bottom: 1.5rem;
+}

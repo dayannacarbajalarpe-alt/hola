@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('inicio') }}" class="btn-volver">Volver al inicio</a>
+
+  <div class="cuenta-card">
+    <div class="cuenta-avatar">
+      <img src="{{ url_for('static', filename='img/perfil.jpg') }}" alt="Foto de perfil" class="cuenta-img">
+    </div>
+    <h2>{{ nombre }}</h2>
+    <p class="cuenta-correo">{{ correo }}</p>
+
+    <a href="{{ url_for('logout') }}" class="btn-agregar">Cerrar sesión</a>
+  </div>
+</body>
+</html>

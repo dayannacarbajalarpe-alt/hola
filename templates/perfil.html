@@ -18,7 +18,11 @@
       <div class="auth-avatar">&#128100;</div>
       <h2 class="auth-title">Bienvenido de vuelta</h2>
       <p class="auth-sub">Ingresa tus datos para continuar</p>
+      {% if error %}
+      <p style="color: red; text-align: center;">{{ error }}</p>
+      {% endif %}
 
+      <form method="POST" action="{{ url_for('login') }}">
       <form method="POST" action="{{ url_for('login') }}">
         <div class="field">
           <label>Correo electrónico</label>
