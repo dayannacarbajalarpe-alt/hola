@@ -3,10 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet.css') }}">
     <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div id="register-form" >
+<div id="fondo">
+  <a href="{{ url_for('inicio') }}" class="btn btn-warning position-absolute top-0 start-0 m-3">
+  Volver al inicio
+</a>
+    <div class="auth-wrap" >
+      <div class="auth-card">
         <h2 class="auth-title">Crear cuenta</h2>
         <form method="POST" action="{{ url_for('registro') }}">
           <div class="field">
@@ -24,9 +31,11 @@
           <button type="submit" class="btn-primary">Crear cuenta</button>
         </form>
         <p class="register-link">¿Ya tienes cuenta?
-          <a onclick="showTab('login')">Inicia sesión</a>
+          <a href="{{ url_for('perfil') }}">Inicia sesión</a>
         </p>
       </div>
+    </div>
+  </div>
 
 </body>
 </html>
