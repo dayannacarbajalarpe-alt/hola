@@ -1,29 +1,75 @@
-from flask import Flask, render_template, request, redirect, url_for,abort,session
-usuarios = []
+from flask import Flask, render_template, request, redirect, url_for, abort, session
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+import json
 app = Flask(__name__)
 app.secret_key = "clave_secreta_12345"
-productos=[
-  {"id":1, "nombre": "Jean slim azul", "categoria": "jeans", "precio": 89.00 },
-  {"id":2, "nombre": "Jean recto negro", "categoria": "jeans", "precio": 99.00 },
-  {"id":3, "nombre": "Zapatillas urbanas", "categoria": "zapatos", "precio": 159.00 },
-  {"id":4, "nombre": "Botines cuero", "categoria": "zapatos", "precio": 229.00 },
-  {"id":5, "nombre": "Polo básico blanco", "categoria": "polos", "precio": 39.00 },
-  {"id":6, "nombre": "Polo oversize gris", "categoria": "polos", "precio": 49.00 },
-  {"id":7, "nombre": "Casaca denim", "categoria": "casacas", "precio": 179.50 },
-  {"id":8, "nombre": "Casaca bomber", "categoria": "casacas", "precio": 199.00 }
-]
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///usuarios.db'
+db = SQLAlchemy(app)
+import os
+from werkzeug.utils import secure_filename
+
+app.config['UPLOAD_FOLDER'] = 'static/img'
+class Usuario(db.Model):
+    id         = db.Column(db.Integer, primary_key=True)
+    nombre     = db.Column(db.String(100), nullable=False)
+    correo     = db.Column(db.String(120), unique=True, nullable=False)
+    contrasena = db.Column(db.String(200), nullable=False)
+    es_admin   = db.Column(db.Boolean, default=False)
+
+class Producto(db.Model):
+    id        = db.Column(db.Integer, primary_key=True)
+    nombre    = db.Column(db.String(100), nullable=False)
+    categoria = db.Column(db.String(50), nullable=False)
+    precio    = db.Column(db.Float, nullable=False)
+    imagen    = db.Column(db.String(200), default="default.jpg")
+
+with app.app_context():
+    db.create_all()
+
+    if not Usuario.query.filter_by(correo="dayannacarbajalarpe@gmail.com").first():
+        admin = Usuario(
+            nombre     = "day",
+            correo     = "dayannacarbajalarpe@gmail.com",
+            contrasena = generate_password_hash("12345"),
+            es_admin   = True
+        )
+        db.session.add(admin)
+
+    if Producto.query.count() == 0:
+        iniciales = [
+            Producto(nombre="Jean slim azul",     categoria="jeans",   precio=89.00 ,imagen="jeans2.jpg"),
+            Producto(nombre="Jean recto negro",   categoria="jeans",   precio=99.00 ,imagen="jeans2.jpg" ),
+            Producto(nombre="Zapatillas urbanas", categoria="zapatos", precio=159.00 ,imagen="rojo.jpg" ),
+            Producto(nombre="Botines cuero",      categoria="zapatos", precio=229.00 ,imagen="rojo.jpg"),
+            Producto(nombre="Polo básico blanco", categoria="polos",   precio=39.00 ,imagen="rojo.jpg"),
+            Producto(nombre="Polo oversize gris", categoria="polos",   precio=49.00 ,imagen="rojo.jpg"),
+            Producto(nombre="Casaca denim",       categoria="casacas", precio=179.50 ,imagen="rojo.jpg"),
+            Producto(nombre="Casaca bomber",      categoria="casacas", precio=199.00 ,imagen="casaca.jpg"),
+        ]
+        db.session.add_all(iniciales)
+
+    db.session.commit()
+
 @app.route("/")
 def inicio():
-    return render_template("index.html")
-    
-@app.route("/tienda")
-def tienda():                
-    return render_template("tienda.html")
-    
+    productos = Producto.query.all()
+    return render_template("index.html", productos=productos)
 
-@app.route("/perfil")
-def perfil():
-    return render_template("perfil.html")
+@app.route("/tienda")
+def tienda():
+    productos = Producto.query.all()
+    productos_json = json.dumps([
+        {
+            "id": p.id,
+            "nombre": p.nombre,
+            "categoria": p.categoria,
+            "precio": p.precio,
+            "imagen": p.imagen
+        }
+        for p in productos
+    ])
+    return render_template("tienda.html", productos_json=productos_json)
 
 @app.route("/carrito")
 def carrito():
@@ -31,43 +77,44 @@ def carrito():
 
 @app.route("/detalles/<int:id>")
 def detalles(id):
-    producto = next((p for p in productos if p["id"] == id), None)
-    if producto is None:
-        abort(404)
+    producto = Producto.query.get_or_404(id)
     return render_template("detalles.html", producto=producto)
+
+@app.route("/perfil", methods=["GET", "POST"])
+def perfil():
+    if request.method == "POST":
+        correo     = request.form["correo"]
+        contrasena = request.form["contrasena"]
+        usuario    = Usuario.query.filter_by(correo=correo).first()
+
+        if usuario and check_password_hash(usuario.contrasena, contrasena):
+            session["usuario"]    = usuario.nombre
+            session["correo"]     = usuario.correo
+            session["usuario_id"] = usuario.id
+            session["es_admin"]   = usuario.es_admin 
+            return redirect(url_for("inicio"))
+
+        return render_template("perfil.html", error="Correo o contraseña incorrectos")
+
+    return render_template("perfil.html")
 
 @app.route("/registro", methods=["GET", "POST"])
 def registro():
     if request.method == "POST":
         correo = request.form["correo"]
-
-        if any(u["correo"] == correo for u in usuarios):
+        if Usuario.query.filter_by(correo=correo).first():
             return render_template("registro.html", error="Este correo ya está registrado")
 
-        nuevo = {
-            "nombre": request.form["nombre"],
-            "correo": correo,
-            "contrasena": request.form["contrasena"]
-        }
-        usuarios.append(nuevo)
+        nuevo = Usuario(
+            nombre     = request.form["nombre"],
+            correo     = correo,
+            contrasena = generate_password_hash(request.form["contrasena"])
+        )
+        db.session.add(nuevo)
+        db.session.commit()
         return redirect(url_for("perfil"))
+
     return render_template("registro.html")
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        correo = request.form["correo"]
-        contrasena = request.form["contrasena"]
-        usuario = next((u for u in usuarios if u["correo"] == correo and u["contrasena"] == contrasena), None)
-
-        if usuario:
-            session["usuario"] = usuario["nombre"]
-            session["correo"] = usuario["correo"]
-            return redirect(url_for("inicio"))
-
-        return render_template("perfil.html", error="Usuario no encontrado")
-
-    return render_template("perfil.html")
 
 @app.route("/logout")
 def logout():
@@ -76,10 +123,99 @@ def logout():
 
 @app.route("/mi-cuenta")
 def mi_cuenta():
-    if "usuario" not in session:
+    if "usuario_id" not in session:
         return redirect(url_for("perfil"))
-    return render_template("mi_cuenta.html", nombre=session["usuario"], correo=session["correo"])
+    usuario = Usuario.query.get(session["usuario_id"])
+    return render_template("mi_cuenta.html", usuario=usuario)
+
+@app.route("/editar-cuenta", methods=["GET", "POST"])
+def editar_cuenta():
+    if "usuario_id" not in session:
+        return redirect(url_for("perfil"))
+    usuario = Usuario.query.get(session["usuario_id"])
+    if request.method == "POST":
+        usuario.nombre = request.form["nombre"]
+        usuario.correo = request.form["correo"]
+        nueva_contra   = request.form["contrasena"]
+        if nueva_contra:
+            usuario.contrasena = generate_password_hash(nueva_contra)
+        db.session.commit()
+        session["usuario"] = usuario.nombre
+        session["correo"]  = usuario.correo
+        return redirect(url_for("mi_cuenta"))
+    return render_template("editar_cuenta.html", usuario=usuario)
+
+@app.route("/eliminar-cuenta", methods=["POST"])
+def eliminar_cuenta():
+    if "usuario_id" not in session:
+        return redirect(url_for("perfil"))
+    usuario = Usuario.query.get(session["usuario_id"])
+    db.session.delete(usuario)
+    db.session.commit()
+    session.clear()
+    return redirect(url_for("inicio"))
+
+def solo_admin():
+    return session.get("es_admin") == True
+
+@app.route("/admin")
+def admin():
+    if not solo_admin():
+        abort(403)
+    productos = Producto.query.all()
+    return render_template("admin.html", productos=productos)
+
+@app.route("/admin/agregar", methods=["GET", "POST"])
+def admin_agregar():
+    if not solo_admin():
+        abort(403)
+    if request.method == "POST":
+        archivo = request.files.get("imagen")
+        nombre_imagen = "default.jpg"
+
+        if archivo and archivo.filename:
+            nombre_imagen = secure_filename(archivo.filename)
+            archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], nombre_imagen))
+
+        nuevo = Producto(
+            nombre    = request.form["nombre"],
+            categoria = request.form["categoria"],
+            precio    = float(request.form["precio"]),
+            imagen    = nombre_imagen
+        )
+        db.session.add(nuevo)
+        db.session.commit()
+        return redirect(url_for("admin"))
+    return render_template("admin_form.html", producto=None)
+
+@app.route("/admin/editar/<int:id>", methods=["GET", "POST"])
+def admin_editar(id):
+    if not solo_admin():
+        abort(403)
+    producto = Producto.query.get_or_404(id)
+    if request.method == "POST":
+        producto.nombre    = request.form["nombre"]
+        producto.categoria = request.form["categoria"]
+        producto.precio    = float(request.form["precio"])
+
+        archivo = request.files.get("imagen")
+        if archivo and archivo.filename:
+            nombre_imagen = secure_filename(archivo.filename)
+            archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], nombre_imagen))
+            producto.imagen = nombre_imagen
+
+        db.session.commit()
+        return redirect(url_for("admin"))
+    return render_template("admin_form.html", producto=producto)
+
+@app.route("/admin/borrar/<int:id>", methods=["POST"])
+def admin_borrar(id):
+    if not solo_admin():
+        abort(403)
+    producto = Producto.query.get_or_404(id)
+    db.session.delete(producto)
+    db.session.commit()
+    return redirect(url_for("admin"))
 
 if __name__ == "__main__":
     app.run(debug=True)
-

@@ -17,6 +17,10 @@
       <nav class="nav">
         <a href="{{ url_for('inicio') }}" class="nav-link">Inicio</a>
         <a href="{{ url_for('tienda') }}" class="nav-link">Ver Tienda</a>
+        {% if session.es_admin %}
+        <a href="{{ url_for('admin') }}" class="nav-link" style="color: gold; font-weight: bold;"> Panel Admin
+        </a>
+        {% endif %}
       </nav>
 
 
@@ -78,6 +82,9 @@
         <button class="btn-agregar">Agregar al carrito</button>
         <a href="/tienda" class="btn-volver">Volver a la tienda</a>
     </div>
+     <footer class="footer">
+    <p> 2026 fashion moda :Todos los derechos reservados</p>
+  </footer>
 </body>
 </html>
 </html>

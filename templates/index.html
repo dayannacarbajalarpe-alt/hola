@@ -24,6 +24,10 @@
       <nav class="nav">
         <a href="{{ url_for('inicio') }}" class="nav-link">Inicio</a>
         <a href="{{ url_for('tienda') }}" class="nav-link">Ver Tienda</a>
+        {% if session.es_admin %}
+        <a href="{{ url_for('admin') }}" class="nav-link" style="color: gold; font-weight: bold;"> Panel Admin
+        </a>
+        {% endif %}
       </nav>
 
 
@@ -50,6 +54,7 @@
         <line x1="21" y1="12" x2="9" y2="12"/>
       </svg>
     </a>
+    
   {% else %}
     <a href="{{ url_for('perfil') }}" class="btn-icon" title="Perfil">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -80,53 +85,27 @@
     </div>
   </section>
 <br>
+
   <h2 class="section-title">Colección</h2>
-  <section class="products" id="tienda">
-    
+<section class="products" id="tienda">
+  <div class="cards-grid">
 
-    <div class="cards-grid">
-
-
-      <div class="card">
-        <div class="card-image">
-          <img src="{{ url_for('static', filename='img/jeans2.jpg') }}" style="width: 295px;" alt="jeans">
-        </div>
-        <div class="card-body">
-          <p class="card-category">Pantalones</p>
-          <h3 class="card-name">Jeans Clásico</h3>
-          <p class="card-price">S/ 129.90</p>
-          <a href="/detalles/${p.id}" class="btn-detalles">Ver detalles</a>
-        </div>
+    {% for p in productos %}
+    <div class="card">
+      <div class="card-image">
+        <img src="{{ url_for('static', filename='img/' + p.imagen) }}" style="width: 295px;" alt="{{ p.nombre }}">
       </div>
-
-
-      <div class="card">
-        <div class="card-image">
-          <img src="{{ url_for('static', filename='img/rojo.jpg') }}" style="width: 295px;" alt="vestidos">
-        </div>
-        <div class="card-body">
-          <p class="card-category">Calzado</p>
-          <h3 class="card-name">Zapatos Nike</h3>
-          <p class="card-price">S/ 180.00</p>
-          <a href="/detalles/${p.id}" class="btn-detalles">Ver detalles</a>
-        </div>
+      <div class="card-body">
+        <p class="card-category">{{ p.categoria }}</p>
+        <h3 class="card-name">{{ p.nombre }}</h3>
+        <p class="card-price">S/ {{ "%.2f"|format(p.precio) }}</p>
+        <a href="{{ url_for('detalles', id=p.id) }}" class="btn-detalles">Ver detalles</a>
       </div>
-
-
-      <div class="card">
-        <div class="card-image">
-          <img src="{{ url_for('static', filename='img/casaca.jpg') }}" style="width: 295px;" alt="casaca">
-        </div>
-        <div class="card-body">
-          <p class="card-category">Tops</p>
-          <h3 class="card-name">Blusa Casual</h3>
-          <p class="card-price">S/ 79.90</p>
-          <a href="/detalles/${p.id}" class="btn-detalles">Ver detalles</a>
-        </div>
-      </div>
-
     </div>
-  </section>
+    {% endfor %}
+
+  </div>
+</section>
 
 
   <footer class="footer">

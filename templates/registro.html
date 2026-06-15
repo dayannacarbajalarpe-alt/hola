@@ -15,6 +15,11 @@
     <div class="auth-wrap" >
       <div class="auth-card">
         <h2 class="auth-title">Crear cuenta</h2>
+        {% if error %}
+        <p style="color: red; text-align: center;">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('registro') }}">
         <form method="POST" action="{{ url_for('registro') }}">
           <div class="field">
             <label>Nombre completo</label>
