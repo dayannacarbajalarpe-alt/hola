@@ -4,7 +4,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 app = Flask(__name__)
 app.secret_key = "clave_secreta_12345"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///usuarios.db'
+import os
+
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///usuarios.db')
+if database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 db = SQLAlchemy(app)
 import os
 from werkzeug.utils import secure_filename
