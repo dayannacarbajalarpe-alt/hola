@@ -1,11 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrito — Studio Moda</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
-    <h1>js</h1>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">Studio moda</div>
+      <nav class="nav">
+        <a href="{{ url_for('inicio') }}" class="nav-link">Inicio</a>
+        <a href="{{ url_for('tienda') }}" class="nav-link">Ver Tienda</a>
+        {% if session.es_admin %}
+        <a href="{{ url_for('admin') }}" class="nav-link" style="color: gold; font-weight: bold;">Panel Admin</a>
+        {% endif %}
+      </nav>
+
+      <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Buscar prendas..." />
+        <button class="search-btn">Buscar</button>
+      </div>
+
+      <div class="nav-actions">
+        {% if session.usuario %}
+        <a href="{{ url_for('mi_cuenta') }}" class="btn-icon" title="Mi perfil">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+          </svg>
+          <span>{{ session.usuario }}</span>
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn-icon" title="Cerrar sesión">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </a>
+        {% else %}
+        <a href="{{ url_for('perfil') }}" class="btn-icon" title="Perfil">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+          </svg>
+        </a>
+        {% endif %}
+        <a href="{{ url_for('carrito') }}" class="btn-icon" title="Carrito">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
+
+    <h2 class="section-title" style="text-align:left; margin-bottom: 24px;">Mi Carrito</h2>
+
+    {% if necesita_login %}
+      <div style="background:#fff3cd; border:1px solid #a75e00; padding:20px; border-radius:8px;">
+        <p style="margin:0; color:#850000;">Debes <a href="{{ url_for('perfil') }}" style="color:#da7b00; font-weight:600;">iniciar sesión</a> para usar el carrito.</p>
+      </div>
+
+    {% elif comprado %}
+      <div style="background:#d4edda; border:1px solid #b6e2c1; padding:20px; border-radius:8px;">
+        <p style="margin:0; color:#155724;">✅ ¡Compra realizada con éxito! Gracias por tu pedido.</p>
+      </div>
+
+    {% elif carrito|length == 0 %}
+      <p style="color:#777;">Tu carrito está vacío.</p>
+      <a href="{{ url_for('tienda') }}" class="btn-detalles" style="display:inline-block; margin-top:10px;">Ir a la tienda</a>
+
+    {% else %}
+      <div class="cards-grid">
+        {% for item in carrito %}
+        <div class="card">
+          <div class="card-image">
+            <img src="{{ url_for('static', filename='img/' + item.imagen) }}" style="width: 295px;" alt="{{ item.nombre }}">
+          </div>
+          <div class="card-body">
+            <h3 class="card-name">{{ item.nombre }}</h3>
+            <p class="card-price">S/ {{ "%.2f"|format(item.precio) }}</p>
+            <a href="{{ url_for('quitar_carrito', id=item.id) }}" class="btn-detalles" style="background:#c0392b;">🗑️ Quitar</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align:right;">
+        <h3 style="margin-bottom: 16px;">Total: S/ {{ "%.2f"|format(carrito|sum(attribute='precio')) }}</h3>
+        <form method="POST" action="{{ url_for('comprar') }}">
+          <button type="submit" class="btn-detalles" style="background:#2e7d32; font-size:1rem; padding:12px 28px;">
+            🛒 Comprar
+          </button>
+        </form>
+      </div>
+    {% endif %}
+
+  </div>
+
+  <footer class="footer">
+    <p>2026 fashion moda · Todos los derechos reservados</p>
+  </footer>
+
 </body>
 </html>

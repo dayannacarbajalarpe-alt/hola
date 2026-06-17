@@ -8,6 +8,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///usuarios.db'
 db = SQLAlchemy(app)
 import os
 from werkzeug.utils import secure_filename
+from datetime import datetime
+
+class Pedido(db.Model):
+    id          = db.Column(db.Integer, primary_key=True)
+    usuario_id  = db.Column(db.Integer, db.ForeignKey('usuario.id'))
+    producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'))
+    nombre_producto = db.Column(db.String(100))
+    precio      = db.Column(db.Float)
+    fecha       = db.Column(db.DateTime, default=datetime.utcnow)
 
 app.config['UPLOAD_FOLDER'] = 'static/img'
 class Usuario(db.Model):
@@ -73,7 +82,12 @@ def tienda():
 
 @app.route("/carrito")
 def carrito():
-    return render_template("carrito.html")
+    if "usuario_id" not in session:
+        return render_template("carrito.html", necesita_login=True)
+
+    items = session.get("carrito", [])
+    comprado = request.args.get("comprado")
+    return render_template("carrito.html", carrito=items, comprado=comprado, necesita_login=False)
 
 @app.route("/detalles/<int:id>")
 def detalles(id):
@@ -216,6 +230,91 @@ def admin_borrar(id):
     db.session.delete(producto)
     db.session.commit()
     return redirect(url_for("admin"))
+
+@app.route("/agregar-carrito/<int:id>")
+def agregar_carrito(id):
+    if "usuario_id" not in session:
+        return redirect(url_for("perfil"))
+
+    producto = Producto.query.get_or_404(id)
+
+    if "carrito" not in session:
+        session["carrito"] = []
+
+    carrito = session["carrito"]
+
+    if not any(item["id"] == id for item in carrito):
+        carrito.append({
+            "id": producto.id,
+            "nombre": producto.nombre,
+            "precio": producto.precio,
+            "imagen": producto.imagen
+        })
+
+    session["carrito"] = carrito
+    return redirect(url_for("carrito"))
+
+@app.route("/quitar-carrito/<int:id>")
+def quitar_carrito(id):
+    if "usuario_id" not in session:
+        return redirect(url_for("perfil"))
+
+    if "carrito" in session:
+        session["carrito"] = [item for item in session["carrito"] if item["id"] != id]
+
+    return redirect(url_for("carrito"))
+@app.route("/comprar", methods=["POST"])
+def comprar():
+    if "usuario_id" not in session:
+        return redirect(url_for("perfil"))
+
+    carrito = session.get("carrito", [])
+
+    for item in carrito:
+        pedido = Pedido(
+            usuario_id = session["usuario_id"],
+            producto_id = item["id"],
+            nombre_producto = item["nombre"],
+            precio = item["precio"]
+        )
+        db.session.add(pedido)
+
+    db.session.commit()
+    session["carrito"] = []
+    return redirect(url_for("carrito", comprado=1))
+
+@app.route("/admin/dashboard")
+def admin_dashboard():
+    if not solo_admin():
+        abort(403)
+
+    total_productos = Producto.query.count()
+    total_usuarios  = Usuario.query.count()
+    total_pedidos   = Pedido.query.count()
+    ingresos_totales = db.session.query(db.func.sum(Pedido.precio)).scalar() or 0
+
+    # Ventas por categoría (join Pedido -> Producto)
+    ventas_categoria = db.session.query(
+        Producto.categoria, db.func.count(Pedido.id)
+    ).join(Pedido, Pedido.producto_id == Producto.id).group_by(Producto.categoria).all()
+
+    # Productos más vendidos
+    mas_vendidos = db.session.query(
+        Pedido.nombre_producto, db.func.count(Pedido.id).label("cantidad")
+    ).group_by(Pedido.nombre_producto).order_by(db.func.count(Pedido.id).desc()).limit(5).all()
+
+    datos = {
+        "total_productos": total_productos,
+        "total_usuarios": total_usuarios,
+        "total_pedidos": total_pedidos,
+        "ingresos_totales": round(ingresos_totales, 2),
+        "categorias": [c[0] for c in ventas_categoria],
+        "ventas_por_categoria": [c[1] for c in ventas_categoria],
+        "productos_top": [p[0] for p in mas_vendidos],
+        "cantidades_top": [p[1] for p in mas_vendidos],
+    }
+
+    return render_template("admin_dashboard.html", datos=datos)
 
 if __name__ == "__main__":
     app.run(debug=True)
